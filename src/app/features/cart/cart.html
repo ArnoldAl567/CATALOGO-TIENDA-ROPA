@@ -1,0 +1,24 @@
+<section class="page-shell cart-page">
+  <span class="eyebrow text-olive">Tu selección</span>
+  <h1 class="font-editorial">Mi carrito</h1>
+  <p class="intro">Un resumen de las piezas que elegiste.</p>
+  @if (cart.items().length === 0) {
+    <div class="cart-empty"><span class="font-editorial">Tu historia comienza aquí.</span><p>Elige tus prendas favoritas y prepara un pedido a tu medida.</p><a class="button-dark" routerLink="/catalogo">Explorar catálogo ↗</a></div>
+  } @else {
+    <div class="cart-layout">
+      <div class="cart-list">
+        <div class="cart-list-head"><span>Producto</span><span>Subtotal</span></div>
+        @for (item of cart.items(); track item.productId + item.colorId + item.size) {
+          @if (productFor(item); as product) {
+            <article class="cart-row">
+              <a [routerLink]="['/producto',product.id]" [queryParams]="{color:item.colorId}" class="cart-image">@if (imageFor(item); as image) { <app-product-photo [image]="image" /> }</a>
+              <div class="cart-item-info"><a [routerLink]="['/producto',product.id]" [queryParams]="{color:item.colorId}" class="font-editorial item-name">{{ product.name }}</a><p>{{ colorFor(item) }} · Talla {{ item.size }}</p><span>{{ money(product.price) }} c/u</span><div class="cart-row-actions"><div class="stepper"><button type="button" [attr.aria-label]="'Quitar una unidad de '+product.name" (click)="change(item,-1)">−</button><span>{{ item.quantity }}</span><button type="button" [attr.aria-label]="'Agregar una unidad de '+product.name" (click)="change(item,1)">+</button></div><button type="button" class="remove" (click)="cart.remove(item)">Eliminar</button></div></div>
+              <strong class="row-total">{{ money(product.price * item.quantity) }}</strong>
+            </article>
+          }
+        }
+      </div>
+      <aside class="summary"><span class="eyebrow text-olive">Tu pedido</span><h2 class="font-editorial">Resumen</h2><div><span>{{ cart.count() }} {{ cart.count()===1?'prenda':'prendas' }}</span><strong>{{ money(cart.total()) }}</strong></div><div class="summary-total"><span>Total</span><strong>{{ money(cart.total()) }}</strong></div><p>El envío no está incluido. La tienda confirmará disponibilidad y costo de entrega.</p><a class="button-dark" routerLink="/checkout">Continuar con el pedido ↗</a><a class="continue" routerLink="/catalogo">Seguir explorando</a></aside>
+    </div>
+  }
+</section>
