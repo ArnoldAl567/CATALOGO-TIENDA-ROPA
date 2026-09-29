@@ -20,10 +20,10 @@ export class Checkout {
     if (!this.cart.items().length) { this.submitError.set('Añade al menos una prenda antes de continuar.'); return; }
     const invalid = this.cart.items().some(item => { const product = this.productFor(item); return !product || !validateQuantity(product, item.colorId, item.size, item.quantity); });
     if (invalid) { this.submitError.set('Algunas prendas ya no están disponibles en la cantidad elegida. Revisa el carrito.'); return; }
-    if (!/^\d{10,15}$/.test(STORE_CONFIG.whatsappNumber)) { this.submitError.set('La atención por WhatsApp aún no está disponible. Inténtalo más tarde.'); return; }
+    if (!/^\d{10,15}$/.test(STORE_CONFIG.whatsappNumber)) { this.submitError.set('La tienda aún no ha configurado su número de WhatsApp. Comunícate por otro medio.'); return; }
     try {
       const message = buildOrderMessage({ items: this.cart.items(), customer: this.customer, total: this.cart.total() }, this.catalog.products);
-      window.open(whatsappUrl(message), '_blank', 'noopener,noreferrer');
+      window.location.assign(whatsappUrl(message));
     } catch { this.submitError.set('No pudimos preparar el pedido. Revisa las variantes del carrito.'); }
   }
 }
