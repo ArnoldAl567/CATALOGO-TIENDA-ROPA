@@ -1,8 +1,8 @@
-<div class="announcement">Una forma más personal de vestir · Asesoría por WhatsApp</div>
+<div class="announcement">{{ config().announcement }}</div>
 <header class="site-header" [class.scrolled]="scrolled()">
   <div class="page-shell header-inner">
     <button class="icon-button mobile-toggle" type="button" [attr.aria-label]="mobileOpen() ? 'Cerrar menú' : 'Abrir menú'" [attr.aria-expanded]="mobileOpen()" (click)="mobileOpen.set(!mobileOpen())"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
-    <a class="wordmark" routerLink="/" (click)="closeNavigation()" aria-label="MAISON MODE, ir al inicio">MAISON <span>MODE</span></a>
+    <a class="wordmark" routerLink="/" (click)="closeNavigation()" [attr.aria-label]="config().name + ', ir al inicio'">{{ config().name }}</a>
     <nav class="desktop-nav" aria-label="Navegación principal">
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Inicio</a>
       <a routerLink="/catalogo" [queryParams]="{genero:'mujer'}" routerLinkActive="active">Mujer</a>
@@ -22,11 +22,11 @@
 <main id="main-content"><router-outlet /></main>
 <footer class="site-footer">
   <div class="page-shell footer-main">
-    <div class="footer-brand"><a class="wordmark" routerLink="/">MAISON <span>MODE</span></a><p>Prendas pensadas para acompañar cada momento. Una selección contemporánea, cercana y sin prisa.</p><span class="eyebrow">Lima · Perú</span></div>
+    <div class="footer-brand"><a class="wordmark" routerLink="/">{{ config().name }}</a><p>Prendas pensadas para acompañar cada momento. Una selección contemporánea, cercana y sin prisa.</p><span class="eyebrow">{{ config().location }}</span></div>
     <div><h3>Explora</h3><a routerLink="/catalogo">Todas las prendas</a><a routerLink="/catalogo" [queryParams]="{genero:'mujer'}">Mujer</a><a routerLink="/catalogo" [queryParams]="{genero:'hombre'}">Hombre</a><a routerLink="/catalogo" [queryParams]="{ofertas:'si'}">Ofertas</a></div>
     <div><h3>Ayuda</h3><a routerLink="/contacto">Contacto</a><a routerLink="/contacto" fragment="preguntas">Preguntas frecuentes</a><a routerLink="/carrito">Mi carrito</a><a routerLink="/checkout">Cómo comprar</a></div>
-    <div><h3>Conecta</h3><a [href]="config.instagramUrl" target="_blank" rel="noopener noreferrer">Instagram ↗</a><a [href]="'mailto:' + config.email">{{ config.email }}</a><span>Atención personalizada</span></div>
-  </div><div class="page-shell footer-bottom"><span>© 2026 MAISON MODE. Todos los derechos reservados.</span><span>Hecho para vestir tu historia.</span></div>
+    <div><h3>Conecta</h3>@if (config().instagramUrl) { <a [href]="config().instagramUrl" target="_blank" rel="noopener noreferrer">Instagram ↗</a> }@if (config().email) { <a [href]="'mailto:' + config().email">{{ config().email }}</a> }<span>Atención personalizada</span></div>
+  </div><div class="page-shell footer-bottom"><span>© 2026 {{ config().name }}. Todos los derechos reservados.</span><span>Hecho para vestir tu historia.</span></div>
 </footer>
 @if (cart.drawerOpen()) {
   <div class="drawer-backdrop" (click)="cart.drawerOpen.set(false)" aria-hidden="true"></div>

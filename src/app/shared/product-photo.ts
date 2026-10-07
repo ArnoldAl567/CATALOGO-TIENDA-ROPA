@@ -4,8 +4,8 @@ import { ProductImage } from '../models/store.models';
 @Component({
   selector: 'app-product-photo',
   standalone: true,
-  template: `<span class="photo" role="img" [attr.aria-label]="image().alt" [style.background-image]="'url(' + image().url + ')'" [style.background-size]="size()" [style.background-position]="position()"></span>`,
-  styles: `:host{display:block;overflow:hidden;background:#e9e5dc}.photo{display:block;width:100%;height:100%;background-repeat:no-repeat;background-color:#e9e5dc}`,
+  template: `@if (image().quadrant && image().atlasShape) { <span class="photo" role="img" [attr.aria-label]="image().alt" [style.background-image]="'url(' + image().url + ')'" [style.background-size]="size()" [style.background-position]="position()"></span> } @else { <img class="photo" [src]="image().url" [alt]="image().alt" loading="lazy" /> }`,
+  styles: `:host{display:block;overflow:hidden;background:#e9e5dc}.photo{display:block;width:100%;height:100%;background-repeat:no-repeat;background-color:#e9e5dc}img.photo{object-fit:cover}`,
 })
 export class ProductPhoto {
   readonly image = input.required<ProductImage>();
@@ -16,6 +16,7 @@ export class ProductPhoto {
   });
   readonly position = computed(() => {
     const { atlasShape, quadrant, view } = this.image();
+    if (!quadrant || !atlasShape) return 'center';
     const right = quadrant.endsWith('right');
     const bottom = quadrant.startsWith('bottom');
     if (view === 'detail') {

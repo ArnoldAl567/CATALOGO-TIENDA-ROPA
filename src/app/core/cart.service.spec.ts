@@ -1,9 +1,16 @@
 import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { PRODUCTS } from '../data/catalog.data';
 import { CartService } from './cart.service';
+import { CatalogService } from './catalog.service';
 
 describe('carrito', () => {
-  beforeEach(() => { localStorage.clear(); TestBed.configureTestingModule({}); });
+  beforeEach(() => {
+    localStorage.clear();
+    TestBed.configureTestingModule({providers: [{provide: CatalogService, useValue: {
+      status: signal('ready'), getById: (id: string) => PRODUCTS.find(product => product.id === id),
+    }}]});
+  });
   afterEach(() => TestBed.resetTestingModule());
   it('agrupa la misma variante y calcula el total', () => {
     const cart = TestBed.inject(CartService); const product = PRODUCTS[0]; const variant = product.variants[0];

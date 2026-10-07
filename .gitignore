@@ -8,6 +8,13 @@
 
 # Node
 /node_modules
+studio/node_modules/
+studio/dist/
+studio/.sanity/
+.env
+.env.local
+studio/.env
+studio/.env.local
 /.npm-cache
 npm-debug.log
 yarn-error.log

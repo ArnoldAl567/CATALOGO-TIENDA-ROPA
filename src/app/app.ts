@@ -5,7 +5,6 @@ import { CartService } from './core/cart.service';
 import { CatalogService } from './core/catalog.service';
 import { mainImageForColor, money } from './core/store.utils';
 import { CartItem } from './models/store.models';
-import { STORE_CONFIG } from './core/store.config';
 import { ProductPhoto } from './shared/product-photo';
 
 @Component({ selector: 'app-root', standalone: true, imports: [RouterOutlet, RouterLink, RouterLinkActive, FormsModule, ProductPhoto], templateUrl: './app.html', styleUrl: './app.css' })
@@ -13,7 +12,7 @@ export class App {
   readonly cart = inject(CartService);
   readonly catalog = inject(CatalogService);
   private readonly router = inject(Router);
-  readonly config = STORE_CONFIG;
+  readonly config = this.catalog.settings;
   readonly scrolled = signal(false);
   readonly mobileOpen = signal(false);
   readonly searchOpen = signal(false);

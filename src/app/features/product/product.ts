@@ -1,4 +1,4 @@
-import { Component, computed, HostListener, inject, signal } from '@angular/core';
+import { Component, computed, effect, HostListener, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CatalogService } from '../../core/catalog.service';
 import { CartService } from '../../core/cart.service';
@@ -12,7 +12,8 @@ export class ProductPage {
   readonly cart = inject(CartService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  readonly product = signal(this.catalog.getById(this.route.snapshot.paramMap.get('id') ?? ''));
+  readonly productId = signal(this.route.snapshot.paramMap.get('id') ?? '');
+  readonly product = computed(() => this.catalog.getById(this.productId()));
   readonly selectedColor = signal(''); readonly selectedSize = signal(''); readonly activeImage = signal(0);
   readonly quantity = signal(1); readonly error = signal(''); readonly sizeGuideOpen = signal(false); readonly zoomOpen = signal(false);
   readonly money = money;
@@ -25,11 +26,19 @@ export class ProductPage {
 
   constructor() {
     this.route.paramMap.subscribe(params => {
-      const product = this.catalog.getById(params.get('id') ?? ''); this.product.set(product);
+      this.productId.set(params.get('id') ?? '');
+    });
+    effect(() => {
+      const product = this.product();
+      if (!product) return;
       const requestedColor = this.route.snapshot.queryParamMap.get('color');
-      this.selectedColor.set(product?.variants.some(variant => variant.colorId === requestedColor) ? requestedColor! : (product?.variants[0]?.colorId ?? '')); this.selectedSize.set('');
-      this.activeImage.set(0); this.quantity.set(1); this.error.set('');
-      if (product) { document.title = `${product.name} | MAISON MODE`; window.scrollTo(0, 0); }
+      this.selectedColor.set(product.variants.some(variant => variant.colorId === requestedColor) ? requestedColor! : (product.variants[0]?.colorId ?? ''));
+      this.selectedSize.set(''); this.activeImage.set(0); this.quantity.set(1); this.error.set('');
+      window.scrollTo(0, 0);
+    });
+    effect(() => {
+      const product = this.product();
+      if (product) document.title = `${product.name} | ${this.catalog.settings().name}`;
     });
     this.route.queryParamMap.subscribe(params => {
       const colorId = params.get('color');

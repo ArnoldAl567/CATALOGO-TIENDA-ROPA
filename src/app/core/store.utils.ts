@@ -40,8 +40,8 @@ export function validateCustomer(customer: Customer): Record<string, string> {
   if (customer.fulfillment === 'delivery' && customer.address.trim().length < 5) errors['address'] = 'Ingresa la dirección de entrega.';
   return errors;
 }
-export function buildOrderMessage(order: Order, products: Product[]): string {
-  const lines = [`Hola, ${STORE_CONFIG.name}. Quiero realizar el siguiente pedido:`, ''];
+export function buildOrderMessage(order: Order, products: Product[], storeName = STORE_CONFIG.name): string {
+  const lines = [`Hola, ${storeName}. Quiero realizar el siguiente pedido:`, ''];
   order.items.forEach((item: CartItem, index) => {
     const product = products.find(candidate => candidate.id === item.productId);
     if (!product || !validateQuantity(product, item.colorId, item.size, item.quantity)) throw new Error('Hay una variante o cantidad no disponible.');
@@ -57,4 +57,4 @@ export function buildOrderMessage(order: Order, products: Product[]): string {
   lines.push('', '¿Podrían confirmarme la disponibilidad y, si corresponde, el costo de envío?');
   return lines.join('\n');
 }
-export function whatsappUrl(message: string): string { return `https://wa.me/${STORE_CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`; }
+export function whatsappUrl(message: string, number = STORE_CONFIG.whatsappNumber): string { return `https://wa.me/${number}?text=${encodeURIComponent(message)}`; }

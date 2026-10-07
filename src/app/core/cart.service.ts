@@ -19,6 +19,14 @@ export class CartService {
     effect(() => {
       if (typeof localStorage !== 'undefined') localStorage.setItem(STORAGE_KEY, JSON.stringify(this.items()));
     });
+    effect(() => {
+      if (!['demo', 'ready'].includes(this.catalog.status())) return;
+      const valid = this.items().filter(item => {
+        const product = this.catalog.getById(item.productId);
+        return !!product && validateQuantity(product, item.colorId, item.size, item.quantity);
+      });
+      if (valid.length !== this.items().length) this.state.set(valid);
+    });
   }
 
   private restore(): CartItem[] {
@@ -28,8 +36,7 @@ export class CartService {
       if (!Array.isArray(raw)) return [];
       return raw.filter((item): item is CartItem => {
         if (!item || typeof item.productId !== 'string' || typeof item.colorId !== 'string' || typeof item.size !== 'string') return false;
-        const product = this.catalog.getById(item.productId);
-        return !!product && validateQuantity(product, item.colorId, item.size, item.quantity);
+        return Number.isInteger(item.quantity) && item.quantity > 0;
       });
     } catch { return []; }
   }
