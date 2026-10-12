@@ -16,7 +16,7 @@ La tienda abre en `http://localhost:4200`. El panel ya está publicado en [maiso
 
 ## Sanity configurado
 
-El proyecto `9krd69tb` y el dataset público `production` están configurados en [`sanity.project.json`](sanity.project.json). El panel contiene 8 categorías, 24 productos con 48 fotografías recortadas por color y los datos básicos de la tienda. La tienda consulta únicamente documentos publicados y nunca lleva un token de edición al navegador. Los orígenes `http://localhost:4200` y `http://127.0.0.1:4200` están autorizados sin credenciales.
+El proyecto `9krd69tb` y el dataset público `production` están configurados en [`sanity.project.json`](sanity.project.json). El panel contiene 8 categorías, 24 productos con 48 fotografías recortadas por color y los datos básicos de la tienda. La tienda consulta únicamente documentos publicados y nunca lleva un token de edición al navegador. Los orígenes `http://localhost:4200`, `http://127.0.0.1:4200` y `https://catalogo-tienda-ropa.vercel.app` están autorizados sin credenciales.
 
 1. Abre el [panel](https://maison-mode-catalogo.sanity.studio/) con la cuenta de Sanity dueña del proyecto.
 2. En **Datos de la tienda**, revisa el WhatsApp, completa un correo real y la cuenta de Instagram, añade una fotografía de portada y publica los cambios.
@@ -34,7 +34,7 @@ Si la consulta a Sanity falla, la tienda muestra un mensaje de error y un botón
 - **Categoría:** nombre, enlace y orden.
 - **Datos de la tienda:** WhatsApp, correo, Instagram, ubicación y textos de portada. WhatsApp debe tener código de país, sin `+` ni espacios.
 
-Guarda y **publica** los documentos para que aparezcan en el catálogo. Los borradores permanecen fuera de la consulta pública. La CDN de Sanity puede tardar un momento en reflejar una publicación; recarga la tienda para ver cambios recientes.
+Guarda y **publica** los documentos para que aparezcan en el catálogo. Los borradores permanecen fuera de la consulta pública. La tienda escucha las publicaciones de Sanity y actualiza el contenido en una pestaña abierta; al regresar desde el panel también consulta la versión publicada directamente. Una pestaña que estuviera abierta antes de desplegar esta función necesita recargarse una vez.
 
 ## Comprobación
 

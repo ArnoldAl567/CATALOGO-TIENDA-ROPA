@@ -33,12 +33,26 @@ const CATALOG_QUERY = `{
   }
 }`;
 
-export async function fetchSanityCatalog(): Promise<{categories: Category[]; products: Product[]; settings: Partial<StoreSettings>}> {
-  if (!project.projectId) throw new Error('Sanity Project ID no configurado.');
-  const client = createClient({projectId: project.projectId, dataset: project.dataset, apiVersion: project.apiVersion, useCdn: true});
+const client = project.projectId ? createClient({
+  projectId: project.projectId,
+  dataset: project.dataset,
+  apiVersion: project.apiVersion,
+  perspective: 'published',
+  useCdn: true,
+}) : null;
+
+export async function fetchSanityCatalog(options: {fresh?: boolean; lastLiveEventId?: string} = {}): Promise<{
+  categories: Category[]; products: Product[]; settings: Partial<StoreSettings>; syncTags: string[];
+}> {
+  if (!client) throw new Error('Sanity Project ID no configurado.');
   const imageBuilder = createImageUrlBuilder(client);
   const imageUrl = (source?: ImageDocument, width = 1200): string => source?.asset ? imageBuilder.image(source).width(width).fit('max').auto('format').url() : '';
-  const response = await client.fetch<CatalogResponse>(CATALOG_QUERY);
+  const {result: response, syncTags = []} = await client.fetch<CatalogResponse>(CATALOG_QUERY, {}, {
+    filterResponse: false,
+    returnQuery: false,
+    ...(options.fresh ? {useCdn: false} : {cacheMode: 'noStale' as const}),
+    ...(options.lastLiveEventId ? {lastLiveEventId: options.lastLiveEventId} : {}),
+  });
   const categories = (response.categories ?? []).filter((item): item is SanityCategory & {id: string; name: string} => !!item.id && !!item.name).map(item => ({
     id: item.id, name: item.name, description: item.description ?? '', image: imageUrl(item.image, 900) || '/image-fallback.svg',
   }));
@@ -67,5 +81,22 @@ export async function fetchSanityCatalog(): Promise<{categories: Category[]; pro
   const rawSettings = response.settings ?? {};
   const {heroImage: _heroImage, ...settings} = rawSettings;
   const heroImageUrl = imageUrl(rawSettings.heroImage, 2000);
-  return {categories, products, settings: {...settings, ...(heroImageUrl ? {heroImageUrl, heroImageAlt: rawSettings.heroImage?.alt ?? settings.name ?? 'Portada de la tienda'} : {})}};
+  return {categories, products, syncTags, settings: {...settings, ...(heroImageUrl ? {heroImageUrl, heroImageAlt: rawSettings.heroImage?.alt ?? settings.name ?? 'Portada de la tienda'} : {})}};
+}
+
+export function observeSanityCatalog(
+  getSyncTags: () => readonly string[],
+  onUpdate: (lastLiveEventId?: string) => void,
+  onError: (error: unknown) => void,
+): () => void {
+  if (!client) return () => {};
+  const subscription = client.live.events().subscribe({
+    next: event => {
+      if (event.type === 'message' && event.tags.some(tag => getSyncTags().includes(tag))) onUpdate(event.id);
+      if (event.type === 'restart' || event.type === 'reconnect') onUpdate();
+      if (event.type === 'goaway') onError(new Error(`Sanity cerró la conexión en vivo: ${event.reason}`));
+    },
+    error: onError,
+  });
+  return () => subscription.unsubscribe();
 }

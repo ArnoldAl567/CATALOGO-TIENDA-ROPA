@@ -23,6 +23,7 @@ export class ProductPage {
   readonly images = computed(() => this.product() ? imagesForColor(this.product()!, this.selectedColor()) : []);
   readonly variant = computed(() => { const product = this.product(); return product ? getVariant(product, this.selectedColor(), this.selectedSize()) : undefined; });
   readonly related = computed(() => this.product() ? this.catalog.related(this.product()!) : []);
+  private initializedProductId = '';
 
   constructor() {
     this.route.paramMap.subscribe(params => {
@@ -31,6 +32,16 @@ export class ProductPage {
     effect(() => {
       const product = this.product();
       if (!product) return;
+      if (this.initializedProductId === product.id) {
+        if (!product.variants.some(variant => variant.colorId === this.selectedColor())) {
+          this.selectedColor.set(product.variants[0]?.colorId ?? '');
+          this.activeImage.set(0);
+        }
+        if (this.selectedSize() && !getVariant(product, this.selectedColor(), this.selectedSize())) this.selectedSize.set('');
+        if (this.activeImage() >= this.images().length) this.activeImage.set(0);
+        return;
+      }
+      this.initializedProductId = product.id;
       const requestedColor = this.route.snapshot.queryParamMap.get('color');
       this.selectedColor.set(product.variants.some(variant => variant.colorId === requestedColor) ? requestedColor! : (product.variants[0]?.colorId ?? ''));
       this.selectedSize.set(''); this.activeImage.set(0); this.quantity.set(1); this.error.set('');
